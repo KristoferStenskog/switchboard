@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Switchboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --wood: #1b1c1f;
+  --panel: #232428;
+  --key: #2c2e33;
+  --key-hover: #35383e;
+  --brass: #d6d7da;
+  --brass-dim: #3d4046;
+  --text: #ececea;
+  --muted: #9b9ea4;
+  --lamp-off: #474a51;
+  --lamp: #f2b84b;
+  --spot: #1ed760;
+  --danger: #e0644f;
+  color-scheme: dark;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+:root[data-theme="slate"] {
+  --wood: #171b21; --panel: #1f252d; --key: #28303a; --key-hover: #313a46;
+  --brass: #cfd8e3; --brass-dim: #364150; --text: #e7ecf2; --muted: #93a0b0;
+  --lamp-off: #435061; --lamp: #f2b84b; --danger: #e0644f; --title: #e7ecf2;
+  color-scheme: dark;
+}
+:root[data-theme="graphite"] {
+  --wood: #1e1c1a; --panel: #272522; --key: #312e2a; --key-hover: #3a3732;
+  --brass: #e0d9cf; --brass-dim: #45413b; --text: #eee9e2; --muted: #a59d92;
+  --lamp-off: #4f4a43; --lamp: #f2b84b; --danger: #e0644f; --title: #eee9e2;
+  color-scheme: dark;
+}
+:root[data-theme="moss"] {
+  --wood: #141a16; --panel: #1b231e; --key: #243029; --key-hover: #2c3a32;
+  --brass: #d3e0d6; --brass-dim: #34443a; --text: #e8efe9; --muted: #95a89a;
+  --lamp-off: #3e5045; --lamp: #f2b84b; --danger: #e0644f; --title: #e8efe9;
+  color-scheme: dark;
+}
+:root[data-theme="daylight"] {
+  --wood: #eceae6; --panel: #f7f6f3; --key: #ffffff; --key-hover: #f0efeb;
+  --brass: #2a2b2e; --brass-dim: #d3d1cc; --text: #1f2023; --muted: #6b6d72;
+  --lamp-off: #c9c8c4; --lamp: #d98a00; --danger: #c0412c; --title: #1f2023;
+  color-scheme: light;
+}
+:root[data-theme="ember"] {
+  --wood: #160c0b; --panel: #22100e; --key: #321612; --key-hover: #3f1c17;
+  --brass: #ff7a3d; --brass-dim: #5a2419; --text: #fbe9e2; --muted: #c49a8c;
+  --lamp-off: #5a2b22; --lamp: #ffb03a; --danger: #ff5a5a; --title: #ff7a3d;
+  color-scheme: dark;
+}
+:root[data-theme="neon"] {
+  --wood: #120d1f; --panel: #1b1430; --key: #251b42; --key-hover: #2f2352;
+  --brass: #3ff0ff; --brass-dim: #3d2f6b; --text: #f1ecff; --muted: #a99cd1;
+  --lamp-off: #43386b; --lamp: #ff4fd8; --danger: #ff6b6b; --title: #3ff0ff;
+  color-scheme: dark;
+}
+:root[data-theme="abyss"] {
+  --wood: #061417; --panel: #0b1f24; --key: #0f2b32; --key-hover: #14363e;
+  --brass: #5ef2d0; --brass-dim: #1d4650; --text: #e2f7f4; --muted: #8bb5b0;
+  --lamp-off: #24505a; --lamp: #ffd166; --danger: #ff6b6b; --title: #5ef2d0;
+  color-scheme: dark;
+}
+:root[data-theme="royal"] {
+  --wood: #100f24; --panel: #18173a; --key: #22204d; --key-hover: #2b295e;
+  --brass: #e8c35a; --brass-dim: #34326b; --text: #f0eefc; --muted: #a6a3cf;
+  --lamp-off: #403e78; --lamp: #e8c35a; --danger: #ff6b6b; --title: #e8c35a;
+  color-scheme: dark;
+}
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.tools label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+select {
+  font: inherit; color: var(--text); background: var(--key); border: 1px solid var(--brass-dim);
+  border-radius: 6px; padding: 8px 10px; cursor: pointer;
+}
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0;
+  background: var(--wood);
+  color: var(--text);
+  font: 16px/1.5 Figtree, "Segoe UI", system-ui, sans-serif;
+}
+.wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+header { display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+h1 {
+  font: 900 clamp(48px, 9vw, 96px)/0.9 "Big Shoulders Display", Impact, "Arial Narrow", sans-serif;
+  margin: 0; color: var(--title, var(--text)); letter-spacing: 0.01em;
+}
+header p { margin: 6px 0 0; color: var(--muted); }
+button, input { font: inherit; color: inherit; }
+.btn {
+  background: transparent; border: 1px solid var(--brass-dim); border-radius: 6px;
+  padding: 8px 14px; cursor: pointer; color: var(--text);
+}
+.btn:hover { border-color: var(--muted); background: var(--key); }
+.btn.on:hover { background: var(--brass); }
+.btn.on { background: var(--brass); color: var(--wood); border-color: var(--brass); }
+:focus-visible { outline: 3px solid var(--lamp); outline-offset: 2px; }
+
+.boards { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+.board {
+  background: var(--panel); border: 1px solid var(--brass-dim); border-radius: 12px;
+  padding: 18px; transition: border-color .15s;
+}
+.board.drop { border-color: var(--lamp); border-style: dashed; }
+.strip { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; align-items: center; margin-bottom: 16px; }
+.big-lamp { width: 22px; height: 22px; border-radius: 50%; background: var(--lamp-off); grid-row: span 2; }
+.big-lamp.on { background: var(--lamp); box-shadow: 0 0 14px var(--lamp); }
+.big-lamp.spot { background: var(--spot); box-shadow: 0 0 14px var(--spot); }
+h2 { font: 700 34px/1 "Big Shoulders Display", Impact, sans-serif; margin: 0; }
+.now { color: var(--muted); margin: 0; min-height: 1.5em; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 16px; }
+.controls label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+input[type=range] { accent-color: var(--brass); width: 140px; }
+input[type=checkbox] { accent-color: var(--brass); width: 18px; height: 18px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.slot { position: relative; }
+.key {
+  width: 100%; min-height: 64px; display: flex; align-items: center; gap: 10px; text-align: left;
+  background: var(--key); border: 1.5px solid transparent; border-radius: 8px; padding: 10px 12px; cursor: pointer;
+}
+.key:hover { background: var(--key-hover); }
+.key.playing { border-color: var(--lamp); }
+.key.spotify.playing { border-color: var(--spot); }
+.lamp { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--lamp-off); }
+.key.playing .lamp { background: var(--lamp); box-shadow: 0 0 8px var(--lamp); }
+.key.spotify.playing .lamp { background: var(--spot); box-shadow: 0 0 8px var(--spot); }
+.text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.label { overflow-wrap: anywhere; }
+.dur { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rename {
+  width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--brass-dim);
+  padding: 2px 0; border-radius: 0;
+}
+.rename:focus { outline: none; border-bottom-color: var(--lamp); }
+.remove {
+  display: none; position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%;
+  border: none; background: var(--danger); color: #fff; cursor: pointer; line-height: 1;
+}
+.editing .remove { display: block; }
+.editing .key { border-style: dashed; border-color: var(--brass-dim); }
+.empty { color: var(--muted); grid-column: 1 / -1; margin: 0; padding: 14px; border: 1.5px dashed var(--brass-dim); border-radius: 8px; }
+.add-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.file-btn input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.file-btn { position: relative; }
+.file-btn:focus-within { outline: 3px solid var(--lamp); outline-offset: 2px; }
+
+h3 { font: 700 24px/1 "Big Shoulders Display", Impact, sans-serif; margin: 26px 0 10px; padding-top: 18px; border-top: 1px solid var(--brass-dim); }
+.spot-form { display: flex; flex-wrap: wrap; gap: 8px; }
+.spot-form input[type=text] {
+  flex: 1 1 160px; background: var(--key); border: 1.5px solid var(--brass-dim); border-radius: 6px; padding: 8px 10px;
+}
+.hint { color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+.notice { color: var(--danger); margin: 0 0 16px; }
+.msg { margin: 10px 0 0; padding: 8px 12px; border-radius: 6px; border-left: 4px solid var(--danger); background: var(--key); }
+.msg.ok { border-left-color: var(--spot); }
+.fs { margin-top: 20px; }
+.fs h2 { margin-bottom: 12px; }
+.fs a { color: var(--brass); }
+.steps { margin: 0 0 14px; padding-left: 22px; }
+.steps li { margin-bottom: 4px; }
+.fs-opts { margin: 12px 0; }
+.btn.link { border-color: transparent; text-decoration: underline; color: var(--muted); padding-left: 0; padding-right: 0; }
+#fs-results { display: grid; gap: 8px; margin-bottom: 12px; }
+.result { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; background: var(--key); border-radius: 8px; }
+.result .info { display: flex; flex-direction: column; flex: 1 1 200px; min-width: 0; }
+.btn:disabled { opacity: 0.6; cursor: default; }
+.sp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 14px; }
+.sp-row label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+#sp-panel .hint { margin: 0 0 10px; }
+code { background: var(--key); padding: 4px 8px; border-radius: 4px; overflow-wrap: anywhere; font-size: 14px; }
+.voicebar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 20px;
+  background: var(--panel); border: 1px solid var(--brass-dim); border-radius: 12px; padding: 12px 18px;
+}
+.voicebar .big-lamp { grid-row: auto; }
+.voicebar label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+#voice-text { flex: 1 1 220px; margin: 0; }
+.big-lamp.rec { background: var(--danger); box-shadow: 0 0 14px var(--danger); }
+#msg-voice { margin: -10px 0 20px; }
+.trig { font-size: 13px; color: var(--lamp); overflow-wrap: anywhere; }
+.trig-input { font-size: 13px; margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Switchboard</h1>
+      <p>Music on one line, effects on the other.</p>
+    </div>
+    <div class="tools">
+      <label>Theme
+        <select id="theme">
+          <optgroup label="Casual">
+            <option value="charcoal">Charcoal</option>
+            <option value="slate">Slate</option>
+            <option value="graphite">Graphite</option>
+            <option value="moss">Moss</option>
+            <option value="daylight">Daylight</option>
+          </optgroup>
+          <optgroup label="Bold">
+            <option value="ember">Ember</option>
+            <option value="neon">Neon</option>
+            <option value="abyss">Abyss</option>
+            <option value="royal">Royal</option>
+          </optgroup>
+        </select>
+      </label>
+      <button class="btn" id="editToggle" aria-pressed="false">Edit buttons</button>
+    </div>
+  </header>
+  <p class="notice" id="notice" hidden></p>
+
+  <section class="voicebar" aria-label="Voice control">
+    <span class="big-lamp" id="lamp-voice"></span>
+    <button class="btn" id="voice-toggle" type="button">Start listening</button>
+    <label>Language
+      <select id="voice-lang">
+        <option value="sv-SE">Svenska</option>
+        <option value="en-US">English</option>
+      </select>
+    </label>
+    <p class="now" id="voice-text">Add voice words to buttons under Edit buttons, then start listening.</p>
+  </section>
+  <p class="msg" id="msg-voice" role="status" hidden></p>
+
+  <div class="boards">
+    <section class="board" id="board-music" aria-labelledby="h-music">
+      <div class="strip">
+        <div class="big-lamp" id="lamp-music"></div>
+        <h2 id="h-music">Music</h2>
+        <p class="now" id="now-music">Nothing playing</p>
+      </div>
+      <div class="controls">
+        <label>Volume <input type="range" id="vol-music" min="0" max="100" value="70"></label>
+        <label><input type="checkbox" id="loop-music" checked> Loop</label>
+        <button class="btn" id="stop-music">Stop music</button>
+      </div>
+      <div class="grid" id="grid-music"></div>
+      <div class="add-row">
+        <label class="btn file-btn">Add music files<input type="file" id="add-music" accept="audio/*" multiple></label>
+      </div>
+      <p class="msg" id="msg-music" role="status" hidden></p>
+
+      <h3>Spotify playlists</h3>
+      <div id="sp-panel"></div>
+      <div class="grid" id="grid-spotify"></div>
+      <form class="spot-form" id="spot-form">
+        <input type="text" id="spot-name" placeholder="Name, e.g. Tavern" aria-label="Playlist name">
+        <input type="text" id="spot-link" placeholder="Paste Spotify link" aria-label="Spotify link">
+        <button class="btn" type="submit">Add playlist</button>
+      </form>
+      <p class="hint">In Spotify, choose Share and then Copy link to playlist.</p>
+      <p class="msg" id="msg-spotify" role="status" hidden></p>
+    </section>
+
+    <section class="board" id="board-sfx" aria-labelledby="h-sfx">
+      <div class="strip">
+        <div class="big-lamp" id="lamp-sfx"></div>
+        <h2 id="h-sfx">Effects</h2>
+        <p class="now" id="now-sfx">Nothing playing</p>
+      </div>
+      <div class="controls">
+        <label>Volume <input type="range" id="vol-sfx" min="0" max="100" value="90"></label>
+        <button class="btn" id="stop-sfx">Stop effects</button>
+      </div>
+      <div class="grid" id="grid-sfx"></div>
+      <div class="add-row">
+        <label class="btn file-btn">Add effect files<input type="file" id="add-sfx" accept="audio/*" multiple></label>
+      </div>
+      <p class="hint">You can also drag audio files onto either panel.</p>
+      <p class="msg" id="msg-sfx" role="status" hidden></p>
+    </section>
+  </div>
+
+  <section class="board fs" aria-labelledby="h-fs">
+    <h2 id="h-fs">Find sounds on Freesound</h2>
+    <div id="fs-setup">
+      <p>To search Freesound, the switchboard needs a free API key. You only do this once.</p>
+      <ol class="steps">
+        <li>Log in or create an account at <a href="https://freesound.org" target="_blank" rel="noopener">freesound.org</a>.</li>
+        <li>Open <a href="https://freesound.org/apiv2/apply" target="_blank" rel="noopener">freesound.org/apiv2/apply</a> and fill in the short form.</li>
+        <li>Copy the long code shown as Client secret/Api key and paste it here.</li>
+      </ol>
+      <form class="spot-form" id="fs-key-form">
+        <input type="text" id="fs-key" placeholder="Paste API key" aria-label="Freesound API key">
+        <button class="btn" type="submit">Save key</button>
+      </form>
+    </div>
+    <div id="fs-search" hidden>
+      <form class="spot-form" id="fs-form">
+        <input type="text" id="fs-query" placeholder="Search, for example door creak" aria-label="Search Freesound">
+        <button class="btn" type="submit">Search</button>
+      </form>
+      <div class="controls fs-opts">
+        <label><input type="checkbox" id="fs-short" checked> Short sounds only (under 30 seconds)</label>
+        <button class="btn link" id="fs-change-key" type="button">Change API key</button>
+      </div>
+      <div id="fs-results"></div>
+      <button class="btn" id="fs-more" type="button" hidden>Show more results</button>
+    </div>
+    <p class="msg" id="msg-fs" role="status" hidden></p>
+  </section>
+
+  <section class="board fs" aria-labelledby="h-backup">
+    <h2 id="h-backup">Back up</h2>
+    <p class="hint">Save all your buttons and sounds in one file. Use it to move the switchboard to another browser or computer.</p>
+    <div class="add-row">
+      <button class="btn" id="backup-btn" type="button">Save backup</button>
+      <label class="btn file-btn">Restore backup<input type="file" id="restore-input" accept=".json,application/json"></label>
+    </div>
+    <p class="msg" id="msg-backup" role="status" hidden></p>
+  </section>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const EMPTY = {
+  music: 'Add music files to make buttons. Music fades over when you switch.',
+  sfx: 'Add effect files to make buttons. Effects play on top of the music.',
+  spotify: 'Add a playlist link below to make a button.'
+};
+const state = { items: [], editing: false, spotifyId: null };
+let db = null;
+
+/* ---------- Storage (remembers your buttons) ---------- */
+function openDB() {
+  return new Promise(res => {
+    try {
+      const r = indexedDB.open('ttrpg-switchboard', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('items', { keyPath: 'id' });
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => res(null);
+    } catch (e) { res(null); }
+  });
+}
+function dbAll() {
+  return new Promise(res => {
+    if (!db) return res([]);
+    try {
+      const q = db.transaction('items').objectStore('items').getAll();
+      q.onsuccess = () => res(q.result || []);
+      q.onerror = () => res([]);
+    } catch (e) { res([]); }
+  });
+}
+function dbPut(item) {
+  const warn = () => showNotice('Your browser would not save "' + item.name + '". It works now, but will be gone when you close the page.');
+  try {
+    if (!db) return;
+    const tx = db.transaction('items', 'readwrite');
+    tx.onerror = warn;
+    tx.objectStore('items').put(item);
+  } catch (e) { warn(); }
+}
+function dbDel(id) { try { if (db) db.transaction('items', 'readwrite').objectStore('items').delete(id); } catch (e) {} }
+
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+/* ---------- Audio engine (Web Audio) ---------- */
+let ctx = null, musicGain = null, sfxGain = null;
+function audio() {
+  if (!ctx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    ctx = new AC();
+    musicGain = ctx.createGain(); musicGain.gain.value = music.vol; musicGain.connect(ctx.destination);
+    sfxGain = ctx.createGain(); sfxGain.gain.value = sfx.vol; sfxGain.connect(ctx.destination);
+  }
+  if (ctx.state === 'suspended') ctx.resume();
+  return ctx;
+}
+function readBlob(b) {
+  if (b.arrayBuffer) return b.arrayBuffer();
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result); r.onerror = () => rej(r.error);
+    r.readAsArrayBuffer(b);
+  });
+}
+async function decode(item) {
+  if (!item.blob) throw { name: 'NotReadableError' };
+  const buf = await readBlob(item.blob);
+  return new Promise((res, rej) => {
+    const p = audio().decodeAudioData(buf, res, err => rej(err || { name: 'EncodingError' }));
+    if (p && p.catch) p.catch(() => {});
+  });
+}
+function fail(where, item, e) {
+  const n = (e && e.name) || '';
+  let msg;
+  if (n === 'EncodingError' || n === 'NotSupportedError' || !n)
+    msg = '"' + item.name + '" is in a format this browser cannot play. MP3 files work everywhere.';
+  else if (n === 'NotReadableError' || n === 'NotFoundError')
+    msg = '"' + item.name + '" could not be read. Remove the button and add the file again.';
+  else
+    msg = '"' + item.name + '" could not play (' + n + (e.message ? ': ' + e.message : '') + ').';
+  showMsg(where, msg);
+}
+
+/* ---------- Music track ---------- */
+const music = { src: null, gain: null, id: null, vol: 0.7, loop: true, token: 0 };
+function fadeOutCurrent(sec = 1.2) {
+  if (!music.src) return;
+  const { src, gain } = music, t = ctx.currentTime;
+  gain.gain.cancelScheduledValues(t);
+  gain.gain.setValueAtTime(gain.gain.value, t);
+  gain.gain.linearRampToValueAtTime(0, t + sec);
+  src.onended = null;
+  try { src.stop(t + sec + 0.05); } catch (e) {}
+  music.src = null; music.gain = null;
+}
+async function playMusic(item) {
+  if (music.id === item.id) { stopMusic(); return; }
+  const token = ++music.token;
+  spPause();
+  fadeOutCurrent();
+  music.id = item.id; state.spotifyId = null; update();
+  try {
+    audio();
+    const buf = await decode(item);
+    setDuration(item, buf);
+    if (token !== music.token) return;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(1, ctx.currentTime + 1.2);
+    g.connect(musicGain);
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.loop = music.loop; src.connect(g);
+    src.onended = () => { if (music.src === src) { music.src = null; music.gain = null; music.id = null; update(); } };
+    src.start();
+    music.src = src; music.gain = g; update();
+  } catch (e) {
+    if (token === music.token) { music.id = null; update(); }
+    fail('music', item, e);
+  }
+}
+function stopMusic() {
+  music.token++;
+  fadeOutCurrent(0.8);
+  spPause();
+  music.id = null; update();
+}
+
+/* ---------- Effects track ---------- */
+const sfx = { vol: 0.9, playing: new Map(), cache: new Map() };
+function stopSfxItem(id) {
+  const set = sfx.playing.get(id);
+  if (set) for (const src of [...set]) { try { src.stop(); } catch (e) {} }
+  sfx.playing.delete(id); update();
+}
+async function playSfx(item, fromVoice) {
+  if (!fromVoice && sfx.playing.has(item.id)) { stopSfxItem(item.id); return; }
+  try {
+    audio();
+    let buf = sfx.cache.get(item.id);
+    if (!buf) { buf = await decode(item); sfx.cache.set(item.id, buf); setDuration(item, buf); }
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.connect(sfxGain);
+    const set = sfx.playing.get(item.id) || new Set();
+    set.add(src); sfx.playing.set(item.id, set);
+    src.onended = () => { set.delete(src); if (!set.size) sfx.playing.delete(item.id); update(); };
+    src.start(); update();
+  } catch (e) { fail('sfx', item, e); }
+}
+function stopSfx() {
+  for (const set of sfx.playing.values()) for (const src of [...set]) { try { src.stop(); } catch (e) {} }
+  sfx.playing.clear(); update();
+}
+
+/* ---------- Spotify (version 1: opens the playlist in the Spotify app) ---------- */
+function parseSpotify(link) {
+  const m = link.match(/(playlist|album|track|artist)[\/:]([A-Za-z0-9]{10,})/);
+  return m ? 'spotify:' + m[1] + ':' + m[2] : null;
+}
+async function playSpotify(item) {
+  if (spIsConnected() && state.spotifyId === item.id && SP.playing) { spPause(); update(); return; }
+  music.token++;
+  fadeOutCurrent();
+  music.id = null;
+  if (spIsConnected()) {
+    if (await spPlay(item)) {
+      state.spotifyId = item.id; SP.playing = true;
+      spUpdateControls(); setTimeout(spPoll, 900);
+    }
+  } else {
+    state.spotifyId = item.id;
+    const a = document.createElement('a');
+    a.href = item.uri; a.click();
+  }
+  update();
+}
+
+/* ---------- Adding and removing ---------- */
+function isAudio(f) { return f.type.startsWith('audio/') || /\.(mp3|wav|ogg|oga|m4a|aac|flac|webm|opus)$/i.test(f.name); }
+function addFiles(kind, files) {
+  const list = [...files].filter(isAudio);
+  if (!list.length) { showMsg(kind, 'Those files are not audio files.'); return; }
+  list.forEach((f, i) => {
+    const item = { id: newId(), kind, order: Date.now() + i,
+      name: f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim(), blob: f };
+    state.items.push(item); dbPut(item);
+  });
+  render();
+  measureDurations();
+}
+function removeItem(id) {
+  const item = state.items.find(i => i.id === id);
+  if (!item) return;
+  if (music.id === id) stopMusic();
+  if (state.spotifyId === id) state.spotifyId = null;
+  state.items = state.items.filter(i => i.id !== id);
+  sfx.cache.delete(id);
+  dbDel(id); render();
+}
+
+/* ---------- Lengths of sound files ---------- */
+function fmt(sec) {
+  sec = Math.round(sec);
+  return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+}
+function setDuration(item, buf) {
+  if (item.duration) return;
+  item.duration = buf.duration; dbPut(item);
+  const el = document.querySelector('.key[data-id="' + item.id + '"] .dur');
+  if (el) el.textContent = fmt(item.duration);
+}
+let measuring = false;
+async function measureDurations() {
+  if (measuring) return;
+  measuring = true;
+  for (const item of [...state.items]) {
+    if (item.kind === 'spotify' || item.duration || item.noDuration || !state.items.includes(item)) continue;
+    try { setDuration(item, await decode(item)); } catch (e) { item.noDuration = true; }
+  }
+  measuring = false;
+  if (state.items.some(i => i.kind !== 'spotify' && !i.duration && !i.noDuration)) measureDurations();
+}
+
+/* ---------- Drawing the buttons ---------- */
+function render() {
+  for (const kind of ['music', 'sfx', 'spotify']) {
+    const grid = $('#grid-' + kind);
+    grid.innerHTML = '';
+    const list = state.items.filter(i => i.kind === kind).sort((a, b) => a.order - b.order);
+    if (!list.length) {
+      const p = document.createElement('p'); p.className = 'empty'; p.textContent = EMPTY[kind];
+      grid.append(p); continue;
+    }
+    for (const item of list) {
+      const slot = document.createElement('div'); slot.className = 'slot';
+      let key;
+      if (state.editing) {
+        key = document.createElement('div');
+        key.className = 'key';
+        key.innerHTML = '<span class="lamp"></span><span class="text"><input class="rename">' +
+          '<input class="rename trig-input" placeholder="Voice words, e.g. thunder, åska"><span class="dur"></span></span>';
+        const tin = key.querySelector('.trig-input');
+        tin.value = (item.triggers || []).join(', ');
+        tin.setAttribute('aria-label', 'Voice words for ' + item.name);
+        tin.onchange = () => {
+          item.triggers = tin.value.split(',').map(w => w.trim().toLowerCase()).filter(Boolean);
+          tin.value = item.triggers.join(', ');
+          dbPut(item);
+        };
+        tin.onkeydown = e => { if (e.key === 'Enter') tin.blur(); };
+        const inp = key.querySelector('.rename');
+        inp.value = item.name;
+        inp.setAttribute('aria-label', 'Name for ' + item.name);
+        inp.onchange = () => {
+          const v = inp.value.trim();
+          if (v) { item.name = v; dbPut(item); update(); } else inp.value = item.name;
+        };
+        inp.onkeydown = e => { if (e.key === 'Enter') inp.blur(); };
+      } else {
+        key = document.createElement('button');
+        key.className = 'key' + (kind === 'spotify' ? ' spotify' : '');
+        key.innerHTML = '<span class="lamp"></span><span class="text"><span class="label"></span><span class="dur"></span><span class="trig"></span></span>';
+        key.querySelector('.label').textContent = item.name;
+        if ((item.triggers || []).length) key.querySelector('.trig').textContent = 'Voice: ' + item.triggers.join(', ');
+        key.onclick = () => {
+          if (kind === 'music') playMusic(item);
+          else if (kind === 'sfx') playSfx(item);
+          else playSpotify(item);
+        };
+      }
+      key.dataset.id = item.id;
+      if (item.credit) key.title = item.credit;
+      if (item.duration) key.querySelector('.dur').textContent = fmt(item.duration);
+      const rm = document.createElement('button');
+      rm.className = 'remove'; rm.textContent = '×';
+      rm.setAttribute('aria-label', 'Remove ' + item.name);
+      rm.onclick = () => removeItem(item.id);
+      slot.append(key, rm); grid.append(slot);
+    }
+  }
+  update();
+}
+function update() {
+  document.querySelectorAll('.key').forEach(k => {
+    const id = k.dataset.id;
+    k.classList.toggle('playing', id === music.id || sfx.playing.has(id) || id === state.spotifyId);
+  });
+  const name = id => (state.items.find(i => i.id === id) || {}).name;
+  const ml = $('#lamp-music');
+  ml.classList.toggle('on', !!music.id);
+  ml.classList.toggle('spot', !music.id && !!state.spotifyId && (!spIsConnected() || SP.playing));
+  $('#now-music').textContent = music.id ? name(music.id)
+    : state.spotifyId ? spNowText(name(state.spotifyId)) : 'Nothing playing';
+  const names = [...sfx.playing.keys()].map(name);
+  $('#lamp-sfx').classList.toggle('on', names.length > 0);
+  $('#now-sfx').textContent = names.length ? names.join(', ') : 'Nothing playing';
+}
+function showMsg(where, msg, ok) {
+  const n = $('#msg-' + where);
+  n.textContent = msg; n.hidden = false; n.classList.toggle('ok', !!ok);
+  clearTimeout(n._t); n._t = setTimeout(() => { n.hidden = true; }, 8000);
+}
+function showNotice(msg) {
+  const n = $('#notice'); n.textContent = msg; n.hidden = false;
+  clearTimeout(showNotice._t); showNotice._t = setTimeout(() => { n.hidden = true; }, 6000);
+}
+
+/* ---------- Controls ---------- */
+$('#vol-music').oninput = e => {
+  music.vol = e.target.value / 100;
+  if (musicGain) musicGain.gain.value = music.vol;
+};
+$('#vol-sfx').oninput = e => {
+  sfx.vol = e.target.value / 100;
+  if (sfxGain) sfxGain.gain.value = sfx.vol;
+};
+$('#loop-music').onchange = e => { music.loop = e.target.checked; if (music.src) music.src.loop = music.loop; };
+$('#stop-music').onclick = stopMusic;
+$('#stop-sfx').onclick = stopSfx;
+$('#add-music').onchange = e => { addFiles('music', e.target.files); e.target.value = ''; };
+$('#add-sfx').onchange = e => { addFiles('sfx', e.target.files); e.target.value = ''; };
+function setEditing(on) {
+  if (state.editing === on) return;
+  if (!on && document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  state.editing = on;
+  const b = $('#editToggle');
+  document.body.classList.toggle('editing', on);
+  b.classList.toggle('on', on);
+  b.setAttribute('aria-pressed', on);
+  b.textContent = on ? 'Done editing' : 'Edit buttons';
+  render();
+}
+$('#editToggle').onclick = () => setEditing(!state.editing);
+// Clicking anywhere that is not a button being edited (or another field) closes edit mode
+document.addEventListener('click', e => {
+  if (!state.editing) return;
+  if (e.target.closest('.slot, input, select, textarea, label, #editToggle')) return;
+  setEditing(false);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.editing) setEditing(false); });
+$('#spot-form').onsubmit = e => {
+  e.preventDefault();
+  const link = $('#spot-link').value.trim();
+  if (/spotify\.link|spoti\.fi/i.test(link)) {
+    showMsg('spotify', 'Short links like spotify.link cannot be read. Open the link in your browser, then copy the full address (open.spotify.com/...) from the address bar.');
+    return;
+  }
+  const uri = parseSpotify(link);
+  if (!uri) { showMsg('spotify', 'That does not look like a Spotify link. It should start with https://open.spotify.com/playlist/'); return; }
+  const item = { id: newId(), kind: 'spotify', order: Date.now(), uri,
+    name: $('#spot-name').value.trim() || 'Spotify ' + uri.split(':')[1] };
+  state.items.push(item); dbPut(item);
+  $('#spot-name').value = ''; $('#spot-link').value = '';
+  render();
+  showMsg('spotify', 'Added ' + item.name + '.', true);
+};
+for (const kind of ['music', 'sfx']) {
+  const board = $('#board-' + kind);
+  board.addEventListener('dragover', e => { e.preventDefault(); board.classList.add('drop'); });
+  board.addEventListener('dragleave', () => board.classList.remove('drop'));
+  board.addEventListener('drop', e => {
+    e.preventDefault(); board.classList.remove('drop');
+    if (e.dataTransfer.files.length) addFiles(kind, e.dataTransfer.files);
+  });
+}
+
+/* ---------- Freesound ---------- */
+const FS = { key: '', query: '', page: 1, preview: null, previewBtn: null };
+try { FS.key = localStorage.getItem('freesound-key') || ''; } catch (e) {}
+function fsShow() { $('#fs-setup').hidden = !!FS.key; $('#fs-search').hidden = !FS.key; }
+function hideMsg(where) { $('#msg-' + where).hidden = true; }
+function licenseName(url) {
+  if (!url) return 'unknown license';
+  if (/zero|publicdomain/i.test(url)) return 'CC0';
+  if (/sampling/i.test(url)) return 'Sampling+';
+  const m = url.match(/licenses\/([a-z-]+)/i);
+  return m ? 'CC ' + m[1].toUpperCase() : 'see Freesound';
+}
+const cleanName = n => n.replace(/\.[a-z0-9]{2,4}$/i, '').replace(/[_-]+/g, ' ').trim();
+
+$('#fs-key-form').onsubmit = e => {
+  e.preventDefault();
+  const k = $('#fs-key').value.trim();
+  if (!k) return;
+  FS.key = k;
+  try { localStorage.setItem('freesound-key', k); }
+  catch (err) { showMsg('fs', 'Your browser would not save the key, so you will need to paste it again next time.'); }
+  $('#fs-key').value = '';
+  fsShow(); $('#fs-query').focus();
+};
+$('#fs-change-key').onclick = () => {
+  FS.key = '';
+  try { localStorage.removeItem('freesound-key'); } catch (e) {}
+  fsShow();
+};
+$('#fs-form').onsubmit = e => {
+  e.preventDefault();
+  FS.query = $('#fs-query').value.trim();
+  if (!FS.query) return;
+  stopPreview(); fsSearch(1);
+};
+$('#fs-more').onclick = () => fsSearch(FS.page + 1);
+
+async function fsSearch(page) {
+  FS.page = page;
+  if (page === 1) $('#fs-results').innerHTML = '';
+  $('#fs-more').hidden = true;
+  showMsg('fs', 'Searching…', true);
+  const params = new URLSearchParams({ query: FS.query, token: FS.key, page: page, page_size: 15,
+    fields: 'id,name,duration,previews,username,license' });
+  if ($('#fs-short').checked) params.set('filter', 'duration:[0 TO 30]');
+  let res;
+  try { res = await fetch('https://freesound.org/apiv2/search/text/?' + params); }
+  catch (e) { showMsg('fs', 'Could not reach Freesound. Check your internet connection. If it still fails, your browser is blocking requests from a page opened on your computer, which version 2 solves.'); return; }
+  if (res.status === 401) { showMsg('fs', 'Freesound did not accept the API key. Click Change API key and paste it again.'); return; }
+  if (res.status === 429) { showMsg('fs', 'Too many searches in a short time. Wait a minute and try again.'); return; }
+  if (!res.ok) { showMsg('fs', 'Freesound answered with an error (' + res.status + '). Try again in a moment.'); return; }
+  const data = await res.json();
+  hideMsg('fs');
+  if (!data.results.length && page === 1) {
+    $('#fs-results').innerHTML = '<p class="empty">No sounds found. Try other words, or untick Short sounds only.</p>';
+    return;
+  }
+  for (const r of data.results) $('#fs-results').append(fsRow(r));
+  $('#fs-more').hidden = !data.next;
+}
+function fsRow(r) {
+  const row = document.createElement('div'); row.className = 'result';
+  const pv = document.createElement('button'); pv.className = 'btn'; pv.type = 'button'; pv.textContent = 'Preview';
+  pv.onclick = () => fsPreview(r, pv);
+  const info = document.createElement('div'); info.className = 'info';
+  const t = document.createElement('span'); t.className = 'label'; t.textContent = cleanName(r.name);
+  const m = document.createElement('span'); m.className = 'dur';
+  m.textContent = fmt(r.duration) + ', by ' + r.username + ', ' + licenseName(r.license);
+  info.append(t, m);
+  const mkAdd = (label, kind) => {
+    const b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.textContent = label;
+    b.onclick = () => fsAdd(r, kind, b, label);
+    return b;
+  };
+  row.append(pv, info, mkAdd('Add to effects', 'sfx'), mkAdd('Add to music', 'music'));
+  return row;
+}
+function stopPreview() {
+  if (FS.preview) { FS.preview.pause(); FS.preview = null; }
+  if (FS.previewBtn) { FS.previewBtn.textContent = 'Preview'; FS.previewBtn.classList.remove('on'); FS.previewBtn = null; }
+}
+function fsPreview(r, btn) {
+  const same = FS.previewBtn === btn;
+  stopPreview();
+  if (same) return;
+  const a = new Audio(r.previews['preview-hq-mp3']);
+  a.volume = sfx.vol;
+  a.onended = stopPreview;
+  a.play().catch(() => { showMsg('fs', 'Could not play the preview.'); stopPreview(); });
+  FS.preview = a; FS.previewBtn = btn;
+  btn.textContent = 'Stop'; btn.classList.add('on');
+}
+async function fsAdd(r, kind, btn, label) {
+  btn.disabled = true; btn.textContent = 'Adding…';
+  try {
+    const res = await fetch(r.previews['preview-hq-mp3']);
+    if (!res.ok) throw new Error(res.status);
+    const blob = await res.blob();
+    const item = { id: newId(), kind, order: Date.now(), name: cleanName(r.name), blob, duration: r.duration,
+      credit: '"' + r.name + '" by ' + r.username + ' on Freesound (' + licenseName(r.license) + ')' };
+    state.items.push(item); dbPut(item); render();
+    btn.textContent = 'Added';
+    showMsg('fs', 'Added ' + item.name + ' to ' + (kind === 'sfx' ? 'Effects' : 'Music') + '.', true);
+  } catch (e) {
+    btn.disabled = false; btn.textContent = label;
+    showMsg('fs', 'Could not download the sound. If this keeps happening, your browser blocks downloads from a page opened on your computer, which version 2 solves.');
+  }
+}
+
+/* ---------- Small storage helpers ---------- */
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+
+/* ---------- Spotify full control (version 2) ---------- */
+const SP = { clientId: '', token: null, refresh: null, expires: 0, playing: false, track: '', volDragging: false, pollT: null };
+const SP_SCOPES = 'user-read-playback-state user-modify-playback-state user-read-currently-playing';
+const redirectUri = () => location.origin + location.pathname.replace(/index\.html$/, '');
+const onWeb = () => location.protocol === 'https:' || location.hostname === '127.0.0.1';
+const spIsConnected = () => !!(SP.clientId && SP.refresh);
+
+function spLoad() {
+  SP.clientId = lsGet('sp-client-id') || '';
+  SP.refresh = lsGet('sp-refresh');
+  SP.token = lsGet('sp-token');
+  SP.expires = +(lsGet('sp-expires') || 0);
+}
+function spSaveTokens(d) {
+  SP.token = d.access_token;
+  SP.expires = Date.now() + (d.expires_in - 60) * 1000;
+  if (d.refresh_token) SP.refresh = d.refresh_token;
+  lsSet('sp-token', SP.token); lsSet('sp-expires', String(SP.expires)); lsSet('sp-refresh', SP.refresh);
+}
+function b64url(bytes) {
+  return btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function spConnect() {
+  const verifier = b64url(crypto.getRandomValues(new Uint8Array(48)));
+  const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
+  lsSet('sp-verifier', verifier);
+  const q = new URLSearchParams({ response_type: 'code', client_id: SP.clientId, scope: SP_SCOPES,
+    code_challenge_method: 'S256', code_challenge: challenge, redirect_uri: redirectUri() });
+  location.href = 'https://accounts.spotify.com/authorize?' + q;
+}
+async function spTokenRequest(body) {
+  const res = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(body) });
+  if (!res.ok) throw new Error('token ' + res.status);
+  spSaveTokens(await res.json());
+}
+async function spHandleRedirect() {
+  const q = new URLSearchParams(location.search);
+  if (q.get('error')) { history.replaceState(null, '', redirectUri()); showMsg('spotify', 'The Spotify connection was cancelled.'); return; }
+  const code = q.get('code');
+  if (!code) return;
+  history.replaceState(null, '', redirectUri());
+  try {
+    await spTokenRequest({ grant_type: 'authorization_code', code, redirect_uri: redirectUri(),
+      client_id: SP.clientId, code_verifier: lsGet('sp-verifier') || '' });
+    lsSet('sp-verifier', null);
+    showMsg('spotify', 'Spotify is connected.', true);
+  } catch (e) {
+    showMsg('spotify', 'Could not finish connecting to Spotify. Check that the Redirect URI in your Spotify app matches the address shown here exactly, then try again.');
+  }
+}
+async function spValidToken() {
+  if (SP.token && Date.now() < SP.expires) return SP.token;
+  if (!SP.refresh) return null;
+  try {
+    await spTokenRequest({ grant_type: 'refresh_token', refresh_token: SP.refresh, client_id: SP.clientId });
+    return SP.token;
+  } catch (e) {
+    spDisconnect();
+    showMsg('spotify', 'The Spotify connection expired. Click Connect Spotify again.');
+    return null;
+  }
+}
+async function spApi(method, path, body) {
+  const t = await spValidToken();
+  if (!t) throw { status: 401 };
+  const headers = { Authorization: 'Bearer ' + t };
+  if (body) headers['Content-Type'] = 'application/json';
+  const res = await fetch('https://api.spotify.com/v1' + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  if (res.status === 204) return null;
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw { status: res.status, reason: data && data.error && (data.error.reason || data.error.message) };
+  return data;
+}
+function spError(e) {
+  const s = e && e.status;
+  if (e && e.reason === 'VOLUME_CONTROL_DISALLOW') showMsg('spotify', 'This device does not let other apps change its volume. Use the volume in Spotify instead.');
+  else if (s === 404) showMsg('spotify', 'No Spotify device found. Open Spotify on this computer or your phone, then try again.');
+  else if (s === 403) showMsg('spotify', 'Spotify did not allow that' + (e.reason ? ' (' + e.reason + ')' : '') + '.');
+  else if (s === 401) showMsg('spotify', 'Spotify is not connected. Click Connect Spotify.');
+  else showMsg('spotify', 'Spotify did not respond. Try again in a moment.');
+}
+async function spDevices() {
+  try { const d = await spApi('GET', '/me/player/devices'); return (d && d.devices) || []; } catch (e) { return []; }
+}
+async function spFillDevices() {
+  const sel = $('#sp-device');
+  if (!sel) return;
+  const list = await spDevices(), cur = sel.value;
+  sel.innerHTML = '<option value="">Active device</option>';
+  for (const d of list) {
+    const o = document.createElement('option');
+    o.value = d.id; o.textContent = d.name + (d.is_active ? ' (active)' : '');
+    sel.append(o);
+  }
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+async function spPlay(item) {
+  const body = /:track:/.test(item.uri) ? { uris: [item.uri] } : { context_uri: item.uri };
+  const sel = $('#sp-device'), dev = sel ? sel.value : '';
+  try {
+    await spApi('PUT', '/me/player/play' + (dev ? '?device_id=' + encodeURIComponent(dev) : ''), body);
+    return true;
+  } catch (e) {
+    if (e.status === 404) {
+      const list = await spDevices();
+      if (list.length) {
+        try { await spApi('PUT', '/me/player/play?device_id=' + encodeURIComponent(list[0].id), body); return true; } catch (e2) {}
+      }
+    }
+    spError(e);
+    return false;
+  }
+}
+function spPause(clear = true) {
+  if (spIsConnected() && SP.playing) spApi('PUT', '/me/player/pause').catch(() => {});
+  if (spIsConnected()) SP.playing = false;
+  if (clear) state.spotifyId = null;
+  spUpdateControls();
+}
+async function spToggle() {
+  try {
+    if (SP.playing) { await spApi('PUT', '/me/player/pause'); SP.playing = false; }
+    else {
+      if (music.id) { music.token++; fadeOutCurrent(); music.id = null; }
+      await spApi('PUT', '/me/player/play'); SP.playing = true;
+    }
+  } catch (e) { spError(e); }
+  spUpdateControls(); update();
+}
+function spUpdateControls() { const t = $('#sp-toggle'); if (t) t.textContent = SP.playing ? 'Pause' : 'Play'; }
+function spNowText(n) {
+  if (!spIsConnected()) return n + ' (in Spotify)';
+  if (!SP.playing) return n + ' (paused in Spotify)';
+  return SP.track ? n + ': ' + SP.track : n;
+}
+async function spPoll() {
+  if (document.hidden || !spIsConnected()) return;
+  try {
+    const d = await spApi('GET', '/me/player');
+    SP.playing = !!(d && d.is_playing);
+    if (d && d.item) {
+      const artists = (d.item.artists || []).map(a => a.name).join(', ');
+      SP.track = d.item.name + (artists ? ', ' + artists : '');
+    } else SP.track = '';
+    const v = $('#sp-vol');
+    if (v && d && d.device && d.device.volume_percent != null && !SP.volDragging) v.value = d.device.volume_percent;
+  } catch (e) {}
+  spUpdateControls(); update();
+}
+function startPoll() { stopPoll(); spPoll(); SP.pollT = setInterval(spPoll, 5000); }
+function stopPoll() { clearInterval(SP.pollT); }
+function spDisconnect() {
+  SP.token = SP.refresh = null; SP.expires = 0; SP.playing = false;
+  ['sp-token', 'sp-refresh', 'sp-expires'].forEach(k => lsSet(k, null));
+  stopPoll(); spRenderPanel(); update();
+}
+function spRenderPanel() {
+  const p = $('#sp-panel');
+  if (!onWeb()) {
+    p.innerHTML = '<p class="hint">Full Spotify control turns on when the switchboard is opened from a web address. Until then, buttons open playlists in the Spotify app.</p>';
+    return;
+  }
+  if (!SP.clientId) {
+    p.innerHTML = '<p class="hint">To start playlists directly, connect a Spotify app. Use this Redirect URI in your app settings:</p>' +
+      '<div class="sp-row"><code id="sp-uri"></code><button class="btn" type="button" id="sp-copy">Copy</button></div>' +
+      '<form class="spot-form sp-row" id="sp-id-form"><input type="text" id="sp-id" placeholder="Paste Client ID" aria-label="Spotify Client ID"><button class="btn" type="submit">Save</button></form>';
+    $('#sp-uri').textContent = redirectUri();
+    $('#sp-copy').onclick = () => {
+      navigator.clipboard.writeText(redirectUri()).then(
+        () => showMsg('spotify', 'Copied the Redirect URI.', true),
+        () => showMsg('spotify', 'Select the address and copy it by hand.'));
+    };
+    $('#sp-id-form').onsubmit = e => {
+      e.preventDefault();
+      const v = $('#sp-id').value.trim();
+      if (!/^[a-f0-9]{32}$/i.test(v)) { showMsg('spotify', 'A Client ID is 32 letters and numbers. Copy it from your app page on developer.spotify.com.'); return; }
+      SP.clientId = v; lsSet('sp-client-id', v); spRenderPanel();
+    };
+    return;
+  }
+  if (!spIsConnected()) {
+    p.innerHTML = '<div class="sp-row"><button class="btn on" type="button" id="sp-connect">Connect Spotify</button>' +
+      '<button class="btn link" type="button" id="sp-change">Change Client ID</button></div>';
+    $('#sp-connect').onclick = spConnect;
+    $('#sp-change').onclick = () => { SP.clientId = ''; lsSet('sp-client-id', null); spRenderPanel(); };
+    return;
+  }
+  p.innerHTML = '<div class="sp-row">' +
+    '<button class="btn" type="button" id="sp-toggle">Play</button>' +
+    '<button class="btn" type="button" id="sp-next">Next song</button>' +
+    '<label>Volume <input type="range" id="sp-vol" min="0" max="100" value="60"></label>' +
+    '<label>Plays on <select id="sp-device"><option value="">Active device</option></select></label>' +
+    '<button class="btn link" type="button" id="sp-disconnect">Disconnect</button></div>';
+  $('#sp-toggle').onclick = spToggle;
+  $('#sp-next').onclick = () => spApi('POST', '/me/player/next').then(() => setTimeout(spPoll, 700)).catch(spError);
+  const vol = $('#sp-vol'); let vt;
+  vol.oninput = () => {
+    SP.volDragging = true; clearTimeout(vt);
+    vt = setTimeout(() => {
+      spApi('PUT', '/me/player/volume?volume_percent=' + vol.value).catch(spError).finally(() => { SP.volDragging = false; });
+    }, 250);
+  };
+  const sel = $('#sp-device');
+  sel.addEventListener('pointerenter', spFillDevices);
+  sel.addEventListener('focus', spFillDevices);
+  sel.onchange = () => { if (sel.value) spApi('PUT', '/me/player', { device_ids: [sel.value], play: SP.playing }).catch(spError); };
+  $('#sp-disconnect').onclick = spDisconnect;
+  spFillDevices(); spUpdateControls();
+}
+
+/* ---------- Backup and restore ---------- */
+function blobToDataURL(b) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
+}
+function dataURLToBlob(u) {
+  const i = u.indexOf(','), head = u.slice(0, i), bin = atob(u.slice(i + 1));
+  const mime = (head.match(/data:([^;]+)/) || [])[1] || 'audio/mpeg';
+  const arr = new Uint8Array(bin.length);
+  for (let k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+  return new Blob([arr], { type: mime });
+}
+$('#backup-btn').onclick = async () => {
+  showMsg('backup', 'Packing your board…', true);
+  try {
+    const items = [];
+    for (const it of state.items) {
+      const o = Object.assign({}, it); delete o.noDuration;
+      if (it.blob) o.blob = await blobToDataURL(it.blob);
+      items.push(o);
+    }
+    const data = { app: 'ttrpg-switchboard', version: 2, items,
+      settings: { theme: lsGet('switchboard-theme'), freesoundKey: lsGet('freesound-key') } };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    a.download = 'switchboard-backup.json';
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    showMsg('backup', 'Backup saved to your downloads folder.', true);
+  } catch (e) { showMsg('backup', 'Could not create the backup.'); }
+};
+$('#restore-input').onchange = async e => {
+  const file = e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (data.app !== 'ttrpg-switchboard') throw 0;
+    let added = 0;
+    for (const o of data.items || []) {
+      if (state.items.some(i => i.id === o.id)) continue;
+      if (o.blob) o.blob = dataURLToBlob(o.blob);
+      state.items.push(o); dbPut(o); added++;
+    }
+    const st = data.settings || {};
+    if (st.theme) { lsSet('switchboard-theme', st.theme); applyTheme(st.theme); }
+    if (st.freesoundKey && !FS.key) { FS.key = st.freesoundKey; lsSet('freesound-key', FS.key); fsShow(); }
+    render(); measureDurations();
+    showMsg('backup', added ? 'Restored ' + added + ' buttons.' : 'Everything in that backup is already on your board.', true);
+  } catch (err) { showMsg('backup', 'That file is not a switchboard backup.'); }
+};
+
+/* ---------- Voice triggers ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const VOICE = { on: false, rec: null, lang: lsGet('voice-lang') || 'sv-SE', counts: new Map(), cooldown: new Map() };
+const escRe = w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function triggerList() {
+  const out = [];
+  for (const item of state.items)
+    for (const w of item.triggers || [])
+      out.push({ item, word: w, re: new RegExp('(?<![\\p{L}\\p{N}])' + escRe(w), 'giu') });
+  return out;
+}
+function onSpeech(e) {
+  const list = triggerList();
+  let shown = '';
+  for (let i = e.resultIndex; i < e.results.length; i++) {
+    const text = e.results[i][0].transcript;
+    shown = text;
+    for (const t of list) {
+      const n = (text.match(t.re) || []).length;
+      const key = i + '|' + t.item.id + '|' + t.word;
+      if (n > (VOICE.counts.get(key) || 0)) { VOICE.counts.set(key, n); fireTrigger(t.item); }
+    }
+  }
+  if (shown.trim()) $('#voice-text').textContent = '“' + shown.trim().slice(-90) + '”';
+}
+function fireTrigger(item) {
+  const now = Date.now();
+  if (now - (VOICE.cooldown.get(item.id) || 0) < 4000) return;
+  VOICE.cooldown.set(item.id, now);
+  if (item.kind === 'sfx') playSfx(item, true);
+  else if (item.kind === 'music') { if (music.id !== item.id) playMusic(item); }
+  else if (!(state.spotifyId === item.id && (SP.playing || !spIsConnected()))) playSpotify(item);
+  showMsg('voice', 'Heard a voice word, playing ' + item.name + '.', true);
+}
+function recStart() {
+  const r = new SR();
+  r.lang = VOICE.lang; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+  r.onresult = onSpeech;
+  r.onerror = ev => {
+    if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
+      stopVoice(); showMsg('voice', 'The microphone is blocked. Allow it with the icon in the address bar, then try again.');
+    } else if (ev.error === 'audio-capture') {
+      stopVoice(); showMsg('voice', 'No microphone found.');
+    } else if (ev.error === 'network') {
+      stopVoice(); showMsg('voice', 'Voice control needs an internet connection.');
+    }
+  };
+  r.onend = () => {
+    if (VOICE.on && VOICE.rec === r) setTimeout(() => { if (VOICE.on && VOICE.rec === r) recStart(); }, 250);
+  };
+  VOICE.counts.clear();
+  VOICE.rec = r;
+  try { r.start(); } catch (e) {}
+}
+function startVoice() {
+  if (!SR) { showMsg('voice', 'Voice control works in Chrome and Edge, not in this browser.'); return; }
+  if (!state.items.some(i => (i.triggers || []).length))
+    showMsg('voice', 'No buttons have voice words yet. Add them under Edit buttons.');
+  audio();
+  VOICE.on = true; voiceUI(); recStart();
+}
+function stopVoice() {
+  VOICE.on = false;
+  const r = VOICE.rec; VOICE.rec = null;
+  if (r) { try { r.abort(); } catch (e) {} }
+  voiceUI();
+}
+function voiceUI() {
+  const b = $('#voice-toggle');
+  b.textContent = VOICE.on ? 'Stop listening' : 'Start listening';
+  b.classList.toggle('on', VOICE.on);
+  $('#lamp-voice').classList.toggle('rec', VOICE.on);
+  $('#voice-text').textContent = VOICE.on ? 'Listening…' : 'Not listening.';
+}
+$('#voice-toggle').onclick = () => VOICE.on ? stopVoice() : startVoice();
+$('#voice-lang').value = VOICE.lang;
+$('#voice-lang').onchange = e => {
+  VOICE.lang = e.target.value; lsSet('voice-lang', VOICE.lang);
+  if (VOICE.on) {
+    const r = VOICE.rec; VOICE.rec = null;
+    if (r) { try { r.abort(); } catch (err) {} }
+    recStart();
+  }
+};
+if (!SR) $('#voice-text').textContent = 'Voice control works in Chrome and Edge.';
+
+/* ---------- Theme ---------- */
+function applyTheme(name) {
+  if (name === 'charcoal') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = name;
+  $('#theme').value = name;
+}
+try { applyTheme(localStorage.getItem('switchboard-theme') || 'charcoal'); } catch (e) { applyTheme('charcoal'); }
+$('#theme').onchange = e => {
+  applyTheme(e.target.value);
+  try { localStorage.setItem('switchboard-theme', e.target.value); } catch (err) {}
+};
+
+/* ---------- Start ---------- */
+fsShow();
+(async () => {
+  db = await openDB();
+  if (!db) showNotice('This browser will not remember your buttons after you close the page.');
+  state.items = await dbAll();
+  render();
+  measureDurations();
+  spLoad();
+  spRenderPanel();
+  await spHandleRedirect();
+  spRenderPanel();
+  if (spIsConnected()) startPoll();
+})();
+</script>
+</body>
+</html>
